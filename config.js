@@ -1,7 +1,9 @@
-// Put your own Twitter App keys here. See README.md for more detail.
+require('dotenv').config();
+
+// twitter keys
 module.exports = {
-  consumer_key:         'blah',
-  consumer_secret:      'blah',
-  access_token:         'blah',
-  access_token_secret:  'blah'
+  consumer_key:         process.env.CONSUMER_KEY,
+  consumer_secret:      process.env.CONSUMER_SECRET,
+  access_token:         process.env.ACCESS_TOKEN,
+  access_token_secret:  process.envACCESS_TOKEN_SECRET.
 }
