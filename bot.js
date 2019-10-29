@@ -5,12 +5,12 @@ var Scraper = require('./scraper.js');
 var Neural = require('./neural.js');
 
 function train() {
-	var data = Scraper.generateDataset;
+	var data = Scraper.generateDataset();
 	Neural.train(data);
 }
 
 function loop() {
-	var tweet = Scraper.getPopularTweet;
+	var tweet = Scraper.getPopularTweet();
 	var response = Neural.respond(tweet);
 	console.log(response);
 	//T.post();
