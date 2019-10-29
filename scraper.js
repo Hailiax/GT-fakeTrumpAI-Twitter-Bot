@@ -37,7 +37,7 @@ function retweetLatest( T ) {
  * @return a dataset
  */
  
-function generateDataset(T) {
+function generateDataset(T, tf) {
 	return {};
 }
 
@@ -48,7 +48,7 @@ function generateDataset(T) {
  * @return the pre-processed text from a recent tweet
  */
  
-function getPopularTweet(T) {
+function getPopularTweet(T, tf) {
 	return "Donald Trump can suck a dick.";
 }
 

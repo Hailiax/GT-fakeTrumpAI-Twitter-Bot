@@ -1,8 +1,8 @@
-function train(data) {
+function train(tf, data) {
 	console.log(data);
 }
 
-function predict() {
+function predict(tf) {
 	
 }
 
