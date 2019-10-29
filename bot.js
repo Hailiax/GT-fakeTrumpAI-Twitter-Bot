@@ -5,11 +5,15 @@ var Scraper = require('./scraper.js');
 var Neural = require('./neural.js');
 
 function train() {
-	Neural.train('hi');
+	var data = Scraper.generateDataset;
+	Neural.train(data);
 }
 
 function loop() {
-	Scraper.retweet(T);
+	var tweet = Scraper.getPopularTweet;
+	var response = Neural.respond(tweet);
+	console.log(response);
+	//T.post();
 }
 
 train();

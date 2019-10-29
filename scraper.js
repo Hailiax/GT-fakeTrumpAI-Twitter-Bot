@@ -1,3 +1,4 @@
+/*
 // This is the URL of a search for the latest tweets on the '#mediaarts' hashtag.
 var mediaArtsSearch = {q: "#mediaarts", count: 10, result_type: "recent"}; 
 
@@ -27,7 +28,31 @@ function retweetLatest( T ) {
 	  }
 	});
 }
+*/
+
+/**
+ * Generates a large dataset by scraping twitter
+ * 
+ * @param T the twitter object
+ * @return a dataset
+ */
+ 
+function generateDataset(T) {
+	return {};
+}
+
+/**
+ * Gets the most popular tweet
+ * 
+ * @param T the twitter object
+ * @return the pre-processed text from a recent tweet
+ */
+ 
+function getPopularTweet(T) {
+	return "Donald Trump can suck a dick.";
+}
 
 module.exports = {
-	retweet: retweetLatest
+	generateDataset: generateDataset,
+	getPopularTweet: getPopularTweet
 };

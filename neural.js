@@ -2,6 +2,11 @@ function train(data) {
 	console.log(data);
 }
 
+function predict() {
+	
+}
+
 module.exports = {
-	train: train
+	train: train,
+	respond: predict
 };
