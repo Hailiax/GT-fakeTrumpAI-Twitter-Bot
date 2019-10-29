@@ -1,19 +1,22 @@
 // Gets 50 trending topics in the US 
-var trends;
-var trendList = new Set();
 const param = { id: '23424977' };
 async function getTrending(T) {
-	T.get('trends/place', param, function (error, data) {
-		if (!error) {
-			trends = data;
-			for (var trend of trends[0].trends) {
-				//console.log(trend.name);
-				trendList.add(trend.name);
+	var trendList = new Set();
+	return new Promise(resolve => {
+		T.get('trends/place', param, function (error, data) {
+			if (!error) {
+				trends = data;
+				for (var trend of trends[0].trends) {
+					//console.log(trend.name);
+					trendList.add(trend.name);
+				}
+				console.log("bruh");
+				//Returns to result
+				resolve(trendList);
+			} else {
+				console.log(error);
 			}
-			return trendList;
-		} else {
-			console.log(error);
-		}
+		});
 	});
 }
 
@@ -23,15 +26,9 @@ async function getTrending(T) {
  * @param T the twitter object
  * @return the pre-processed text from a recent tweet
  */
-function getPopularTweet(T) {
-	getTrending(T)
-		.then(console.log(trendList)
-		);
-}
-
-function helper(T) {
-	console.log(trendList);
-	for (var trend of trendList) {
+async function getPopularTweet(T) {
+	let result = await getTrending(T);
+	for (var trend of result) {
 		var popular = { q: trend, lang: 'en', count: 100, result_type: "popular" };
 		T.get('search/tweets', popular, function (error, data) {
 			if (!error) {
@@ -44,6 +41,8 @@ function helper(T) {
 		})
 	}
 }
+
+
 // /**
 //  * Generates a large dataset by scraping twitter
 //  * 
