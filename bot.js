@@ -1,6 +1,7 @@
 var Twit = require('twit');
 var T = new Twit(require('./config.js'));
 const tf = require('@tensorflow/tfjs');
+require('@tensorflow/tfjs-node');
 
 var Scraper = require('./scraper.js');
 var Neural = require('./neural.js');
