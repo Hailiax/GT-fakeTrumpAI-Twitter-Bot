@@ -1,44 +1,20 @@
-/*
-// This is the URL of a search for the latest tweets on the '#mediaarts' hashtag.
-var mediaArtsSearch = {q: "#mediaarts", count: 10, result_type: "recent"}; 
-
-// This function finds the latest tweet with the #mediaarts hashtag, and retweets it.
-function retweetLatest( T ) {
-	T.get('search/tweets', mediaArtsSearch, function (error, data) {
-	  // log out any errors and responses
-	  console.log(error, data);
-	  // If our search request to the server had no errors...
-	  if (!error) {
-	  	// ...then we grab the ID of the tweet we want to retweet...
-		var retweetId = data.statuses[0].id_str;
-		// ...and then we tell Twitter we want to retweet it!
-		T.post('statuses/retweet/' + retweetId, { }, function (error, response) {
-			if (response) {
-				console.log('Success! Check your bot, it should have retweeted something.')
+// Gets 50 trending topics in the US 
+var trends;
+var trendList = new Set();
+const param = { id: '23424977' };
+async function getTrending(T) {
+	T.get('trends/place', param, function (error, data) {
+		if (!error) {
+			trends = data;
+			for (var trend of trends[0].trends) {
+				//console.log(trend.name);
+				trendList.add(trend.name);
 			}
-			// If there was an error with our Twitter call, we print it out here.
-			if (error) {
-				console.log('There was an error with Twitter:', error);
-			}
-		})
-	  }
-	  // However, if our original search request had an error, we want to print it out here.
-	  else {
-	  	console.log('There was an error with your hashtag search:', error);
-	  }
+			return trendList;
+		} else {
+			console.log(error);
+		}
 	});
-}
-*/
-
-/**
- * Generates a large dataset by scraping twitter
- * 
- * @param T the twitter object
- * @return a dataset
- */
- 
-function generateDataset(T, tf) {
-	return {};
 }
 
 /**
@@ -47,12 +23,55 @@ function generateDataset(T, tf) {
  * @param T the twitter object
  * @return the pre-processed text from a recent tweet
  */
- 
-function getPopularTweet(T, tf) {
-	return "Donald Trump can suck a dick.";
+function getPopularTweet(T) {
+	getTrending(T)
+		.then(console.log(trendList)
+		);
 }
 
+function helper(T) {
+	console.log(trendList);
+	for (var trend of trendList) {
+		var popular = { q: trend, lang: 'en', count: 100, result_type: "popular" };
+		T.get('search/tweets', popular, function (error, data) {
+			if (!error) {
+				for (var pop of data.statuses)
+					console.log(pop.text);
+
+			} else {
+				console.log(error);
+			}
+		})
+	}
+}
+// /**
+//  * Generates a large dataset by scraping twitter
+//  * 
+//  * @param T the twitter object
+//  * @return a dataset
+//  */
+
+// function generateDataset(T, tf) {
+// 	var set = new Set();
+// 	getTrending(T, tf);
+// 	T.get('search/tweets', trends, function (error, data) {
+// 		// log out any errors and responses
+// 		console.log(error, data);
+// 		// If our search request to the server had no errors...
+// 		if (!error) {
+// 			set.add(data);
+// 		}
+// 		// However, if our original search request had an error, we want to print it out here.
+// 		else {
+// 			console.log('There was an error with your hashtag search:', error);
+// 		}
+
+// 	});
+// 	return set;
+// }
+
 module.exports = {
-	generateDataset: generateDataset,
+	getTrending: getTrending,
+	// generateDataset: generateDataset,
 	getPopularTweet: getPopularTweet
 };
