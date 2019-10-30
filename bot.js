@@ -6,20 +6,20 @@ require('@tensorflow/tfjs-node');
 var Scraper = require('./scraper.js');
 var Neural = require('./neural.js');
 
-function train() {
-	var data = Scraper.generateDataset(T, tf);
-	Neural.train(tf, data);
+async function train( callback ) {
+	let dataset = await Scraper.generateDataset(T, tf);
+	console.log(dataset);
+	await Neural.train(tf, dataset);
+	callback();
 }
 
-function loop() {
-	var tweet = Scraper.getPopularTweet(T, tf);
-	var response = Neural.respond(tf, tweet);
-	console.log(response);
+async function loop( callback ) {
+	//var tweet = Scraper.getPopularTweet(T, tf);
+	//var response = Neural.respond(tf, tweet);
+	//console.log(response);
 	//T.post();
 }
 
-train();
-
-loop();
+train( loop );
 
 setInterval(loop, 1000 * 60 * 60);

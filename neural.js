@@ -1,5 +1,5 @@
 function train(tf, data) {
-	console.log(data);
+	
 }
 
 function predict(tf) {

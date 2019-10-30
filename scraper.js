@@ -4,13 +4,13 @@
  * @param T the twitter object
  * @promises an array of trends
  */
-async function getTrending(T) {
-	return new Promise(resolve => {
-		// id: '23424977' is the US location code
-		T.get('trends/place', { id: '23424977' }, (error, data) => {
+async function _getTrends(T) {
+	return new Promise(async resolve => {
+		let locationUSQuery = { id: '23424977' };
+		T.get('trends/place', locationUSQuery, (error, data) => {
 			if (!error) {
-				var trendList = [];
-				for (var trend of data[0].trends)
+				let trendList = [];
+				for (let trend of data[0].trends)
 					trendList.push(trend.name);
 				// Acts like the return for this promise
 				resolve(trendList);
@@ -22,55 +22,59 @@ async function getTrending(T) {
 }
 
 /**
- * Gets the most popular tweet
+ * Gets the most popular tweets
+ * 
+ * @param T the twitter object
+ * @param query the topic to query
+ * @param count the number of tweets to return
+ * @return a list of popular tweets
+ */
+async function _getPopularTweets(T, query, count) {
+	return new Promise(async resolve => {
+		let popularQuery = { q: query, lang: 'en', count: count, result_type: "popular" };
+		T.get('search/tweets', popularQuery, (error, data) => {
+			if (!error) {
+				let tweetList = [];
+				for (let tweet of data.statuses)
+					tweetList.push(tweet);
+				resolve(tweetList);
+			} else {
+				console.log(error);
+			}
+		});
+	});
+}
+
+/**
+ * Gets a single popular tweet's text
  * 
  * @param T the twitter object
  * @return the pre-processed text from a recent tweet
  */
 async function getPopularTweet(T) {
-	let trendList = await getTrending(T);
-	for (var trend of trendList) {
-		var popularQuery = { q: trend, lang: 'en', count: 100, result_type: "popular" };
-		T.get('search/tweets', popularQuery, (error, data) => {
-			if (!error) {
-				for (var tweet of data.statuses)
-					console.log(tweet.text);
-
-			} else {
-				console.log(error);
-			}
-		})
-	}
+	return new Promise(async resolve => {
+		let trendsArr = await _getTrends(T);
+		let popularTweets = await _getPopularTweets(T, trendsArr[0], 1);
+		// TODO: Iterate, preprocess, filter tweets to select a good tweet
+		resolve(popularTweets[0].text);
+	});
 }
 
 
-// /**
-//  * Generates a large dataset by scraping twitter
-//  * 
-//  * @param T the twitter object
-//  * @return a dataset
-//  */
-
-// function generateDataset(T, tf) {
-// 	var set = new Set();
-// 	getTrending(T, tf);
-// 	T.get('search/tweets', trends, function (error, data) {
-// 		// log out any errors and responses
-// 		console.log(error, data);
-// 		// If our search request to the server had no errors...
-// 		if (!error) {
-// 			set.add(data);
-// 		}
-// 		// However, if our original search request had an error, we want to print it out here.
-// 		else {
-// 			console.log('There was an error with your hashtag search:', error);
-// 		}
-
-// 	});
-// 	return set;
-// }
+/**
+ * Generates a large dataset by scraping twitter
+ * 
+ * @param T the twitter object
+ * @return a dataset
+ */
+async function generateDataset(T, tf) {
+	return new Promise(async resolve => {
+		let test = await getPopularTweet(T);
+		resolve(test);
+	});
+}
 
 module.exports = {
-	// generateDataset: generateDataset,
+	generateDataset: generateDataset,
 	getPopularTweet: getPopularTweet
 };
