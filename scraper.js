@@ -1,17 +1,18 @@
-// Gets 50 trending topics in the US 
-const param = { id: '23424977' };
+/**
+ * Gets 50 most trending topics in the US
+ * 
+ * @param T the twitter object
+ * @promises an array of trends
+ */
 async function getTrending(T) {
-	var trendList = new Set();
 	return new Promise(resolve => {
-		T.get('trends/place', param, function (error, data) {
+		// id: '23424977' is the US location code
+		T.get('trends/place', { id: '23424977' }, (error, data) => {
 			if (!error) {
-				trends = data;
-				for (var trend of trends[0].trends) {
-					//console.log(trend.name);
-					trendList.add(trend.name);
-				}
-				console.log("bruh");
-				//Returns to result
+				var trendList = [];
+				for (var trend of data[0].trends)
+					trendList.push(trend.name);
+				// Acts like the return for this promise
 				resolve(trendList);
 			} else {
 				console.log(error);
@@ -27,13 +28,13 @@ async function getTrending(T) {
  * @return the pre-processed text from a recent tweet
  */
 async function getPopularTweet(T) {
-	let result = await getTrending(T);
-	for (var trend of result) {
-		var popular = { q: trend, lang: 'en', count: 100, result_type: "popular" };
-		T.get('search/tweets', popular, function (error, data) {
+	let trendList = await getTrending(T);
+	for (var trend of trendList) {
+		var popularQuery = { q: trend, lang: 'en', count: 100, result_type: "popular" };
+		T.get('search/tweets', popularQuery, (error, data) => {
 			if (!error) {
-				for (var pop of data.statuses)
-					console.log(pop.text);
+				for (var tweet of data.statuses)
+					console.log(tweet.text);
 
 			} else {
 				console.log(error);
@@ -70,7 +71,6 @@ async function getPopularTweet(T) {
 // }
 
 module.exports = {
-	getTrending: getTrending,
 	// generateDataset: generateDataset,
 	getPopularTweet: getPopularTweet
 };
