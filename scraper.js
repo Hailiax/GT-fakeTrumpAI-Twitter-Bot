@@ -5,7 +5,7 @@
  * @promises an array of trends
  */
 async function _getTrends(T) {
-	return new Promise(async resolve => {
+	return new Promise(resolve => {
 		let locationUSQuery = { id: '23424977' };
 		T.get('trends/place', locationUSQuery, (error, data) => {
 			if (!error) {
@@ -27,10 +27,10 @@ async function _getTrends(T) {
  * @param T the twitter object
  * @param query the topic to query
  * @param count the number of tweets to return
- * @return a list of popular tweets
+ * @promises a list of popular tweets
  */
-async function _getPopularTweets(T, query, count) {
-	return new Promise(async resolve => {
+function _getPopularTweets(T, query, count) {
+	return new Promise(resolve => {
 		let popularQuery = { q: query, lang: 'en', count: count, result_type: "popular" };
 		T.get('search/tweets', popularQuery, (error, data) => {
 			if (!error) {
@@ -49,15 +49,13 @@ async function _getPopularTweets(T, query, count) {
  * Gets a single popular tweet's text
  * 
  * @param T the twitter object
- * @return the pre-processed text from a recent tweet
+ * @promises the pre-processed text from a recent tweet
  */
 async function getPopularTweet(T) {
-	return new Promise(async resolve => {
-		let trendsArr = await _getTrends(T);
-		let popularTweets = await _getPopularTweets(T, trendsArr[0], 1);
-		// TODO: Iterate, preprocess, filter tweets to select a good tweet
-		resolve(popularTweets[0].text);
-	});
+	let trendsArr = await _getTrends(T);
+	let popularTweets = await _getPopularTweets(T, trendsArr[0], 1);
+	// TODO: Iterate, preprocess, filter tweets to select a good tweet
+	return popularTweets[0].text;
 }
 
 
@@ -65,13 +63,11 @@ async function getPopularTweet(T) {
  * Generates a large dataset by scraping twitter
  * 
  * @param T the twitter object
- * @return a dataset
+ * @promises a dataset
  */
 async function generateDataset(T, tf) {
-	return new Promise(async resolve => {
-		let test = await getPopularTweet(T);
-		resolve(test);
-	});
+	let test = await getPopularTweet(T);
+	return test;
 }
 
 module.exports = {
