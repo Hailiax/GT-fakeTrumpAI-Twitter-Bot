@@ -11,12 +11,15 @@ async function init( callback ) {
 	model = Spawn('python', ['model.py']);
 	compiled = false;
 	model.stdout.on('data', data => {
+		console.log(data);
 		if (compiled){
 			let promise = predictionPromiseQueue.shift();
 			promise.resolve(data);
 		} else {
-			compiled = true;
-			callback();
+			if (data === "Model compiled and trained. Ready to run! Zh1Alex9dU") {
+				compiled = true;
+				callback();
+			}
 		}
 	})
 }

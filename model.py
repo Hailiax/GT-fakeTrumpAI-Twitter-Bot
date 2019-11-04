@@ -16,19 +16,8 @@ We will use the conversations in movies and TV shows provided by [Cornell Movie-
 `movie_conversations.txt` contains list of the conversation IDs and `movie_lines.text` contains the text of assoicated with each conversation ID. For further  information regarding the dataset, please check the README file in the zip file.
 """
 
-path_to_zip = tf.keras.utils.get_file(
-    'cornell_movie_dialogs.zip',
-    origin=
-    'http://www.cs.cornell.edu/~cristian/data/cornell_movie_dialogs_corpus.zip',
-    extract=True)
-print( path_to_zip )
-
-path_to_dataset = os.path.join(
-    os.path.dirname(path_to_zip), "cornell movie-dialogs corpus")
-
-path_to_movie_lines = os.path.join(path_to_dataset, 'movie_lines.txt')
-path_to_movie_conversations = os.path.join(path_to_dataset,
-                                           'movie_conversations.txt')
+path_to_movie_lines = 'model_training/movie_lines.txt'
+path_to_movie_conversations = 'model_training/movie_conversations.txt'
 
 """### Load and preprocess data
 
@@ -85,8 +74,8 @@ def load_conversations():
 
 questions, answers = load_conversations()
 
-print('Sample question: {}'.format(questions[20]))
-print('Sample answer: {}'.format(answers[20]))
+#print('Sample question: {}'.format(questions[20]))
+#print('Sample answer: {}'.format(answers[20]))
 
 # Build tokenizer using tfds for both questions and answers
 tokenizer = tfds.features.text.SubwordTextEncoder.build_from_corpus(
@@ -98,7 +87,7 @@ START_TOKEN, END_TOKEN = [tokenizer.vocab_size], [tokenizer.vocab_size + 1]
 # Vocabulary size plus start and end token
 VOCAB_SIZE = tokenizer.vocab_size + 2
 
-print('Tokenized sample question: {}'.format(tokenizer.encode(questions[20])))
+#print('Tokenized sample question: {}'.format(tokenizer.encode(questions[20])))
 
 # Maximum sentence length
 MAX_LENGTH = 40
@@ -128,8 +117,8 @@ def tokenize_and_filter(inputs, outputs):
 
 questions, answers = tokenize_and_filter(questions, answers)
 
-print('Vocab size: {}'.format(VOCAB_SIZE))
-print('Number of samples: {}'.format(len(questions)))
+#print('Vocab size: {}'.format(VOCAB_SIZE))
+#print('Number of samples: {}'.format(len(questions)))
 
 """### Create `tf.data.Dataset`
 
@@ -166,7 +155,7 @@ dataset = dataset.shuffle(BUFFER_SIZE)
 dataset = dataset.batch(BATCH_SIZE)
 dataset = dataset.prefetch(tf.data.experimental.AUTOTUNE)
 
-print(dataset)
+#print(dataset)
 
 """## Attention
 
@@ -289,7 +278,7 @@ def create_padding_mask(x):
   # (batch_size, 1, 1, sequence length)
   return mask[:, tf.newaxis, tf.newaxis, :]
 
-print(create_padding_mask(tf.constant([[1, 2, 0, 3, 0], [0, 0, 0, 4, 5]])))
+#print(create_padding_mask(tf.constant([[1, 2, 0, 3, 0], [0, 0, 0, 4, 5]])))
 
 """Look-ahead mask to mask the future tokens in a sequence.
 We also mask out pad tokens.
@@ -303,7 +292,7 @@ def create_look_ahead_mask(x):
   padding_mask = create_padding_mask(x)
   return tf.maximum(look_ahead_mask, padding_mask)
 
-print(create_look_ahead_mask(tf.constant([[1, 2, 0, 4, 5]])))
+#print(create_look_ahead_mask(tf.constant([[1, 2, 0, 4, 5]])))
 
 """### Positional encoding
 
@@ -690,7 +679,8 @@ model.compile(optimizer=optimizer, loss=loss_function, metrics=[accuracy])
 Train our transformer by simply calling `model.fit()`
 """
 
-EPOCHS = 20
+#EPOCHS = 20
+#EPOCHS = 0
 
 model.fit(dataset, epochs=EPOCHS)
 
@@ -739,18 +729,16 @@ def predict(sentence):
   prediction = evaluate(sentence)
 
   predicted_sentence = tokenizer.decode(
-      [i for i in prediction if i < tokenizer.vocab_size])
-
-  print('Input: {}'.format(sentence))
-  print('Output: {}'.format(predicted_sentence))
+      [i for i in prediction if i < tokenizer.vocab_size])\
 
   return predicted_sentence
 
 """Let's test our model!"""
 
-output = predict('Where have you been?')
+print( "Model compiled and trained. Ready to run! Zh1Alex9dU" )
 
 output = predict("It's a trap")
+print( output )
 
 """## Summary
 
