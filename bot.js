@@ -32,16 +32,16 @@ async function run( callback ) {
 }
 
 async function hourlyResponse() {
-	let target = await Scraper.getPopularTweet(T);
-	let response = await predictResponse(target.text);
-	Scraper.postResponse(T, target, response);
+	let data = await Scraper.getPopularTweet(T);
+	let response = await predictResponse(data.text);
+	Scraper.postResponse(T, data.target, response);
 }
 
 async function mentionResponse() {
-	let mentions = await Scraper.getNewMentions(T, sinceId);
-	for (let mention of mentions) {
-		let response = await predictResponse(mention.text);
-		Scraper.postResponse(T, mention, response);
+	let data = await Scraper.getNewMentions(T, sinceId);
+	for (let datum of data) {
+		let response = await predictResponse(datum.text);
+		Scraper.postResponse(T, datum.target, response);
 	}
 }
 
