@@ -75,7 +75,7 @@ async function getPopularTweet(T) {
 	while (tweet == null) {
 		tweet = await _getPopularTweetHelper(T, ++count);
 	}
-	return {target: tweet.id_str, text: tweet.text};
+	return { target: tweet.id_str, text: tweet.text };
 }
 
 /**
@@ -88,7 +88,7 @@ async function getPopularTweet(T) {
 function _getNewMentionsHelper(T, sinceId) {
 	return new Promise(resolve => {
 		let param = {
-			since_id: sinceId
+			since_id: 12345
 		}
 		T.get('statuses/mentions_timeline', param, function (error, data) {
 			if (!error) {
@@ -116,9 +116,9 @@ async function getNewMentions(T, sinceId) {
 	for (let tweet of tweetList) {
 		if (tweet.in_reply_to_status_id_str !== null) {
 			let parent = await getTweet(T, tweet.in_reply_to_status_id_str);
-			tweetList.push({target: tweet.id_str, text: parent.text});
+			tweetList.push({ target: tweet.id_str, text: parent.text });
 		} else {
-			postResponse(T, tweet, "I cannot respond to this. Please reply to any tweet mentioning me, and I will reply with my response to the tweet you replied to.");
+			postResponse(T, tweet.id_str, "@" + tweet.user.screen_name + " I cannot respond to this. Please reply to any tweet mentioning me, and I will reply with my response to the tweet you replied to.");
 		}
 	}
 	console.log(tweetList);
