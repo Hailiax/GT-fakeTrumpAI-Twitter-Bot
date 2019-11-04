@@ -57,7 +57,7 @@ async function _getPopularTweetHelper(T, count) {
 	// TODO: Iterate, preprocess, filter tweets to select a good tweet
 	hypertext = "https://t.co/";
 	if (!popularTweets[0].text.includes(hypertext)) {
-		return popularTweets[0].text;
+		return popularTweets[0];
 	} else {
 		return null;
 	}
@@ -83,19 +83,27 @@ async function getPopularTweet(T) {
  * @return an array of new mentions' parents twitter ids
  */
 async function getNewMentions(T, sinceId) {
-	let test = await getPopularTweet(T);
-	return test;
+	T.get('statuses/mentions_timeline', function (error, data) {
+		if (error) {
+			console.log(error);
+		} else {
+			console.log(data);
+		}
+	});
+	return [];
 }
+
 
 /**
  * Posts tweet as a reply
  *
  * @param T the twitter object
- * @param id the tweet to respond to
+ * @param tweet the tweet to respond to
  * @param text the post
  */
-async function postResponse(T, id, text) {
-	
+async function postResponse(T, tweet, text) {
+	T.post('')
+
 }
 
 module.exports = {
