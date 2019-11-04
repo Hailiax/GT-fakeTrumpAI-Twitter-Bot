@@ -2,12 +2,22 @@ let Twit = require('twit');
 let T = new Twit(require('./config.js'));
 let Scraper = require('./scraper.js');
 let Spawn = require('child_process').spawn;
+
 let model, sinceId = [0];
+// TODO use an actual queue
+let predictionPromiseQueue = [];
 
 async function init( callback ) {
 	model = Spawn('python', ['model.py']);
-	model.stdout.on('end', data => {
-		callback();
+	compiled = false;
+	model.stdout.on('data', data => {
+		if (compiled){
+			let promise = predictionPromiseQueue.shift();
+			promise.resolve(data);
+		} else {
+			compiled = true;
+			callback();
+		}
 	})
 }
 
@@ -20,18 +30,23 @@ async function run( callback ) {
 
 async function hourlyResponse() {
 	let target = await Scraper.getPopularTweet(T);
-	// TODO create and post response to tweet
+	let response = await predictResponse(target.text);
+	Scraper.postResponse(T, target, response);
 }
 
 async function mentionResponse() {
 	let mentions = await Scraper.getNewMentions(T, sinceId);
 	for (let mention of mentions) {
-		// TODO create and post response to mention
+		let response = await predictResponse(mention.text);
+		Scraper.postResponse(T, mention, response);
 	}
 }
 
-async function predictResponse() {
-	
+async function predictResponse(input) {
+	let promise = new Promise();
+	model.stdin.write(input);
+	predictionPromiseQueue.push(promise);
+	return promise;
 }
 
 init( run );

@@ -91,10 +91,10 @@ async function getNewMentions(T, sinceId) {
  * Posts tweet as a reply
  *
  * @param T the twitter object
- * @param id the tweet to respond to
+ * @param tweet the tweet to respond to
  * @param text the post
  */
-async function postResponse(T, id, text) {
+async function postResponse(T, tweet, text) {
 	
 }
 
