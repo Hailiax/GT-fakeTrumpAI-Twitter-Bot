@@ -57,7 +57,7 @@ async function _getPopularTweetHelper(T, count) {
 	// TODO: Iterate, preprocess, filter tweets to select a good tweet
 	hypertext = "https://t.co/";
 	if (!popularTweets[0].text.includes(hypertext)) {
-		return popularTweets[0s].text;
+		return popularTweets[0].text;
 	} else {
 		return null;
 	}
