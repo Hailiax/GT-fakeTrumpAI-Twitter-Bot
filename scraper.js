@@ -63,14 +63,19 @@ async function _getPopularTweetHelper(T, count) {
 	}
 }
 
+/**
+ * Gets a single popular tweet
+ *
+ * @param T the twitter object
+ * @return {target: 'the id of the tweet to post a reply to', text: 'the text to respond to'}
+ */
 async function getPopularTweet(T) {
 	let count = 0;
 	let tweet = await _getPopularTweetHelper(T, count);
 	while (tweet == null) {
 		tweet = await _getPopularTweetHelper(T, ++count);
 	}
-	return tweet;
-
+	return {target: tweet.id_str, text: tweet.text};
 }
 
 /**
@@ -78,21 +83,18 @@ async function getPopularTweet(T) {
  * 
  * @param {*} T the twitter object
  * @param {*} sinceId since id
+ * @return array of recent mentions
  */
 function _getNewMentionsHelper(T, sinceId) {
 	return new Promise(resolve => {
 		let param = {
-			since_id: 12345
+			since_id: sinceId
 		}
 		T.get('statuses/mentions_timeline', param, function (error, data) {
-			let parentIdList = [];
-			if (error) {
-				console.log(error);
+			if (!error) {
+				resolve(data);
 			} else {
-				for (let tweet of data)
-					parentIdList.push(tweet.in_reply_to_status_id_str);
-				console.log(parentIdList);
-				resolve(parentIdList);
+				console.log(error);
 			}
 
 		});
@@ -105,27 +107,18 @@ function _getNewMentionsHelper(T, sinceId) {
  * 
  * @param T the twitter object
  * @param sinceId the since id
- * @return an array of new mentions' parents twitter ids
+ * @return an array of {target: 'the id of the mentioner's tweet', text: 'the text of the parent to respond to'}
  */
 async function getNewMentions(T, sinceId) {
-
-	let tweetIdList = await _getNewMentionsHelper(T, sinceId);
-	let tweetList = [];
-	for (let tweetId of tweetIdList) {
-		if (tweetId == null) {
-			param = {
-				status: "Cannot find Parent tweet"
-			}
-			T.post('statuses/update', param, function (error, data) {
-				if (error) {
-					console.log(error);
-				} else {
-					console.log("No Parent");
-				}
-			});
+	// TODO update sinceId
+	let tweetList = await _getNewMentionsHelper(T, sinceId);
+	let returnArr = [];
+	for (let tweet of tweetList) {
+		if (tweet.in_reply_to_status_id_str !== null) {
+			let parent = await getTweet(T, tweet.in_reply_to_status_id_str);
+			tweetList.push({target: tweet.id_str, text: parent.text});
 		} else {
-			let tweet = await getTweet(T, tweetId);
-			tweetList.push(tweet);
+			postResponse(T, tweet, "I cannot respond to this. Please reply to any tweet mentioning me, and I will reply with my response to the tweet you replied to.");
 		}
 	}
 	console.log(tweetList);
