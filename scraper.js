@@ -4,7 +4,7 @@
  * @param T the twitter object
  * @promises an array of trends
  */
-async function _getTrends(T) {
+function _getTrends(T) {
 	return new Promise(resolve => {
 		let locationUSQuery = { id: '23424977' };
 		T.get('trends/place', locationUSQuery, (error, data) => {
