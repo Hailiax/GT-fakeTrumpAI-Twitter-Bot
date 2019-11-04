@@ -51,11 +51,26 @@ function _getPopularTweets(T, query, count) {
  * @param T the twitter object
  * @promises the pre-processed text from a recent tweet
  */
-async function getPopularTweet(T) {
+async function _getPopularTweetHelper(T, count) {
 	let trendsArr = await _getTrends(T);
-	let popularTweets = await _getPopularTweets(T, trendsArr[0], 1);
+	let popularTweets = await _getPopularTweets(T, trendsArr[count], 1);
 	// TODO: Iterate, preprocess, filter tweets to select a good tweet
-	return popularTweets[0].text;
+	hypertext = "https://t.co/";
+	if (!popularTweets[0].text.includes(hypertext)) {
+		return popularTweets[0s].text;
+	} else {
+		return null;
+	}
+}
+
+async function getPopularTweet(T) {
+	let count = 0;
+	let tweet = await _getPopularTweetHelper(T, count);
+	while (tweet == null) {
+		tweet = await _getPopularTweetHelper(T, ++count);
+	}
+	return tweet;
+
 }
 
 
