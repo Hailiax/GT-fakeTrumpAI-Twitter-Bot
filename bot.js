@@ -6,7 +6,7 @@ let model, sinceId = [0];
 
 async function init( callback ) {
 	model = Spawn('python', ['model.py']);
-	py.stdout.on('end', data => {
+	model.stdout.on('end', data => {
 		callback();
 	})
 }
@@ -19,15 +19,19 @@ async function run( callback ) {
 }
 
 async function hourlyResponse() {
-	let target = Scraper.getPopularTweet(T);
+	let target = await Scraper.getPopularTweet(T);
 	// TODO create and post response to tweet
 }
 
 async function mentionResponse() {
-	let mentions = Scraper.getNewMentions(T, sinceId);
+	let mentions = await Scraper.getNewMentions(T, sinceId);
 	for (let mention of mentions) {
 		// TODO create and post response to mention
 	}
+}
+
+async function predictResponse() {
+	
 }
 
 init( run );
