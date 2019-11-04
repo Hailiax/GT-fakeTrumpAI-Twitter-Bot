@@ -121,10 +121,19 @@ async function postResponse(T, tweet, text) {
 	});
 }
 
-
+/**
+ * Gets tweet object from id
+ *
+ * @param T the twitter api object
+ * @param id the id of the tweet to get 
+ */
+async function getTweet(T, id) {
+	
+}
 
 module.exports = {
 	getPopularTweet: getPopularTweet,
 	getNewMentions: getNewMentions,
-	postResponse: postResponse
+	postResponse: postResponse,
+	getTweet: getTweet
 };
