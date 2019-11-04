@@ -152,20 +152,20 @@ function getTweet(T, id) {
  * Posts tweet as a reply
  *
  * @param T the twitter object
- * @param tweet the tweet to respond to
+ * @param tweetId the id of the tweet to reply to
  * @param text the post
  */
-async function postResponse(T, tweet, text) {
+async function postResponse(T, tweetId, text) {
 	let response = {
 		status: text,
-		in_reply_to_status_id: tweet.id,
+		in_reply_to_status_id: tweetId,
 	};
 
 	T.post('statuses/update', response, function (error, data) {
-		if (error) {
-			console.log(error);
-		} else {
+		if (!error) {
 			console.log('Tweeted: ' + text);
+		} else {
+			console.log(error);
 		}
 	});
 }
