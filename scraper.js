@@ -73,6 +73,31 @@ async function getPopularTweet(T) {
 
 }
 
+/**
+ * Promises an array of tweet ids
+ * 
+ * @param {*} T the twitter object
+ * @param {*} sinceId since id
+ */
+function _getNewMentionsHelper(T, sinceId) {
+	return new Promise(resolve => {
+		let param = {
+			since_id: 12345
+		}
+		T.get('statuses/mentions_timeline', param, function (error, data) {
+			let parentIdList = [];
+			if (error) {
+				console.log(error);
+			} else {
+				for (let tweet of data)
+					parentIdList.push(tweet.in_reply_to_status_id_str);
+				console.log(parentIdList);
+				resolve(parentIdList);
+			}
+
+		});
+	});
+}
 
 /**
  * Gets newest mentions
@@ -83,21 +108,52 @@ async function getPopularTweet(T) {
  * @return an array of new mentions' parents twitter ids
  */
 async function getNewMentions(T, sinceId) {
-	T.get('statuses/mentions_timeline', function (error, data) {
-		let parentIdList = [];
-		if (error) {
-			console.log(error);
+
+	let tweetIdList = await _getNewMentionsHelper(T, sinceId);
+	let tweetList = [];
+	for (let tweetId of tweetIdList) {
+		if (tweetId == null) {
+			param = {
+				status: "Cannot find Parent tweet"
+			}
+			T.post('statuses/update', param, function (error, data) {
+				if (error) {
+					console.log(error);
+				} else {
+					console.log("No Parent");
+				}
+			});
 		} else {
-			for (let tweet of data)
-				parentIdList.push(tweet.in_reply_to_user_id_str);
-			console.log(parentIdList);
-
+			let tweet = await getTweet(T, tweetId);
+			tweetList.push(tweet);
 		}
-
-	});
-	return parentIdList;
+	}
+	console.log(tweetList);
+	return tweetList;
 }
 
+/**
+ * Gets tweet object from id
+ *
+ * @param T the twitter api object
+ * @param id the id of the tweet to get 
+ */
+function getTweet(T, id) {
+	return new Promise(resolve => {
+		let param = {
+			id: id
+		}
+		T.get('statuses/show', param, function (error, data) {
+			if (error) {
+				console.log(error);
+			} else {
+				console.log("Successful Lookup");
+				resolve(data);
+			}
+		});
+	});
+
+}
 
 /**
  * Posts tweet as a reply
@@ -121,15 +177,7 @@ async function postResponse(T, tweet, text) {
 	});
 }
 
-/**
- * Gets tweet object from id
- *
- * @param T the twitter api object
- * @param id the id of the tweet to get 
- */
-async function getTweet(T, id) {
-	
-}
+
 
 module.exports = {
 	getPopularTweet: getPopularTweet,
