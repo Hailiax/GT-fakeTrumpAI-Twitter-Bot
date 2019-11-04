@@ -75,17 +75,31 @@ async function getPopularTweet(T) {
 
 
 /**
- * Generates a large dataset by scraping twitter
+ * Gets newest mentions
+ * Mutates sinceId[0] to the newest since id
  * 
  * @param T the twitter object
- * @promises a dataset
+ * @param sinceId the since id
+ * @return an array of new mentions' parents twitter ids
  */
-async function generateDataset(T, tf) {
+async function getNewMentions(T, sinceId) {
 	let test = await getPopularTweet(T);
 	return test;
 }
 
+/**
+ * Posts tweet as a reply
+ *
+ * @param T the twitter object
+ * @param id the tweet to respond to
+ * @param text the post
+ */
+async function postResponse(T, id, text) {
+	
+}
+
 module.exports = {
-	generateDataset: generateDataset,
-	getPopularTweet: getPopularTweet
+	getPopularTweet: getPopularTweet,
+	getNewMentions: getNewMentions,
+	postResponse: postResponse
 };
