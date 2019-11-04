@@ -74,8 +74,8 @@ def load_conversations():
 
 questions, answers = load_conversations()
 
-#print('Sample question: {}'.format(questions[20]))
-#print('Sample answer: {}'.format(answers[20]))
+print('Sample question: {}'.format(questions[20]))
+print('Sample answer: {}'.format(answers[20]))
 
 # Build tokenizer using tfds for both questions and answers
 tokenizer = tfds.features.text.SubwordTextEncoder.build_from_corpus(
@@ -680,7 +680,7 @@ Train our transformer by simply calling `model.fit()`
 """
 
 #EPOCHS = 20
-#EPOCHS = 0
+EPOCHS = 0
 
 model.fit(dataset, epochs=EPOCHS)
 
@@ -733,12 +733,17 @@ def predict(sentence):
 
   return predicted_sentence
 
-"""Let's test our model!"""
+"""Run model!"""
 
-print( "Model compiled and trained. Ready to run! Zh1Alex9dU" )
+print("Model compiled and trained. Ready to run! Zh1Alex9dU")
 
-output = predict("It's a trap")
-print( output )
+def main():
+  inp = input()
+  out = predict(inp)
+  print( out )
+  main()
+
+main()
 
 """## Summary
 

@@ -21,7 +21,7 @@ async function init( callback ) {
 				callback();
 			}
 		}
-	})
+	});
 }
 
 async function run( callback ) {
