@@ -49,14 +49,12 @@ function _getPopularTweets(T, query, count) {
  * Gets a single popular tweet's text
  * 
  * @param T the twitter object
+ * @param trendsArr an array with the current trending topics
  * @promises the pre-processed text from a recent tweet
  */
-async function _getPopularTweetHelper(T, count) {
-	let trendsArr = await _getTrends(T);
-	let popularTweets = await _getPopularTweets(T, trendsArr[count], 1);
-	// TODO: Iterate, preprocess, filter tweets to select a good tweet
-	hypertext = "https://t.co/";
-	if (!popularTweets[0].text.includes(hypertext)) {
+async function _getPopularTweetHelper(T, trend) {
+	let popularTweets = await _getPopularTweets(T, trend, 1);
+	if (!popularTweets[0].text.includes("https://t.co/")) {
 		return popularTweets[0];
 	} else {
 		return null;
@@ -70,12 +68,20 @@ async function _getPopularTweetHelper(T, count) {
  * @return {target: 'the id of the tweet to post a reply to', text: 'the text to respond to'}
  */
 async function getPopularTweet(T) {
+	console.log("Attempting to get one popular tweet");
+	let trendsArr = await _getTrends(T);
 	let count = 0;
-	let tweet = await _getPopularTweetHelper(T, count);
-	while (tweet == null) {
-		tweet = await _getPopularTweetHelper(T, ++count);
+	let tweet = await _getPopularTweetHelper(T, trendsArr[count]);
+	while (tweet === null) {
+		console.log("Tweet contained an image. Finding a new tweet.");
+		if (count > trendsArr.length - 1) {
+			count = 0;
+			trendsArr = await _getTrends(T);
+		}
+		tweet = await _getPopularTweetHelper(T, trendsArr[++count]);
 	}
-	return { target: tweet.id_str, text: tweet.text };
+	console.log("Successful get tweet");
+	return { target: tweet, text: tweet.text };
 }
 
 /**
@@ -88,7 +94,7 @@ async function getPopularTweet(T) {
 function _getNewMentionsHelper(T, sinceId) {
 	return new Promise(resolve => {
 		let param = {
-			since_id: sinceId[0]
+			since_id: parseInt(sinceId)
 		}
 		T.get('statuses/mentions_timeline', param, function (error, data) {
 			if (!error) {
@@ -107,22 +113,23 @@ function _getNewMentionsHelper(T, sinceId) {
  * 
  * @param T the twitter object
  * @param sinceId the since id
- * @return an array of {target: 'the id of the mentioner's tweet', text: 'the text of the parent to respond to'}
+ * @return an array of {target: 'the mentioner's tweet', text: 'the text of the parent to respond to'}
  */
 async function getNewMentions(T, sinceId) {
 	// TODO update sinceId
-	let tweetList = await _getNewMentionsHelper(T, sinceId);
+	console.log("Attempting to get list of recent proper mentions.");
+	let tweetList = await _getNewMentionsHelper(T, sinceId[0]);
 	let returnArr = [];
 	for (let tweet of tweetList) {
 		if (tweet.in_reply_to_status_id_str !== null) {
 			let parent = await getTweet(T, tweet.in_reply_to_status_id_str);
-			returnArr.push({ target: tweet.id_str, text: parent.text });
-			sinceId[0] = Math.max(tweet.id_str);
+			returnArr.push({ target: tweet, text: parent.text });
+			sinceId[0] = Math.max(parseInt(tweet.id_str), parseInt(sinceId[0])).toString();
 		} else {
-			postResponse(T, tweet.id_str, "@" + tweet.user.screen_name + " I cannot respond to this. Please reply to any tweet mentioning me, and I will reply with my response to the tweet you replied to.");
+			postResponse(T, tweet, "I cannot respond to this. Please reply to any tweet mentioning me, and I will reply with my response to the tweet you replied to.");
 		}
 	}
-	console.log(returnArr);
+	console.log("Successful Get New Mentions");
 	return returnArr;
 }
 
@@ -130,9 +137,11 @@ async function getNewMentions(T, sinceId) {
  * Gets tweet object from id
  *
  * @param T the twitter api object
- * @param id the id of the tweet to get 
+ * @param id the id of the tweet to get
+ * @return the tweet object
  */
 function getTweet(T, id) {
+	console.log("Attempting to get tweet with id: " + id);
 	return new Promise(resolve => {
 		let param = {
 			id: id
@@ -141,7 +150,7 @@ function getTweet(T, id) {
 			if (error) {
 				console.log(error);
 			} else {
-				console.log("Successful Lookup");
+				console.log("Successful Get Tweet");
 				resolve(data);
 			}
 		});
@@ -153,18 +162,18 @@ function getTweet(T, id) {
  * Posts tweet as a reply
  *
  * @param T the twitter object
- * @param tweetId the id of the tweet to reply to
+ * @param tweet the id of the tweet to reply to
  * @param text the post
  */
-async function postResponse(T, tweetId, text) {
+function postResponse(T, tweet, text) {
+	console.log("Attempting to reply to tweet id " + tweet.id_str + " with: " + text);
 	let response = {
-		status: text,
-		in_reply_to_status_id: tweetId,
+		status: "@" + tweet.user.screen_name + " " + text,
+		in_reply_to_status_id: tweet.id_str,
 	};
-
 	T.post('statuses/update', response, function (error, data) {
 		if (!error) {
-			console.log('Tweeted: ' + text);
+			console.log("Successful Reply");
 		} else {
 			console.log(error);
 		}

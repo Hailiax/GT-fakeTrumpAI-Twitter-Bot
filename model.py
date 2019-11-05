@@ -7,6 +7,7 @@ import tensorflow_datasets as tfds
 
 import os
 import re
+import sys
 import numpy as np
 
 """##Prepare Dataset
@@ -71,11 +72,12 @@ def load_conversations():
         return inputs, outputs
   return inputs, outputs
 
+print("Loading, preprocessing, and tokenizing training data.")
 
 questions, answers = load_conversations()
 
-print('Sample question: {}'.format(questions[20]))
-print('Sample answer: {}'.format(answers[20]))
+#print('Sample question: {}'.format(questions[20]))
+#print('Sample answer: {}'.format(answers[20]))
 
 # Build tokenizer using tfds for both questions and answers
 tokenizer = tfds.features.text.SubwordTextEncoder.build_from_corpus(
@@ -333,8 +335,6 @@ class PositionalEncoding(tf.keras.layers.Layer):
   def call(self, inputs):
     return inputs + self.pos_encoding[:, :tf.shape(inputs)[1], :]
 
-sample_pos_encoding = PositionalEncoding(50, 512)
-
 """### Encoder Layer
 
 Each encoder layer consists of sublayers:
@@ -370,13 +370,6 @@ def encoder_layer(units, d_model, num_heads, dropout, name="encoder_layer"):
 
   return tf.keras.Model(
       inputs=[inputs, padding_mask], outputs=outputs, name=name)
-
-sample_encoder_layer = encoder_layer(
-    units=512,
-    d_model=128,
-    num_heads=4,
-    dropout=0.3,
-    name="sample_encoder_layer")
 
 """### Encoder
 
@@ -415,15 +408,6 @@ def encoder(vocab_size,
 
   return tf.keras.Model(
       inputs=[inputs, padding_mask], outputs=outputs, name=name)
-
-sample_encoder = encoder(
-    vocab_size=8192,
-    num_layers=2,
-    units=512,
-    d_model=128,
-    num_heads=4,
-    dropout=0.3,
-    name="sample_encoder")
 
 """### Decoder Layer
 
@@ -477,13 +461,6 @@ def decoder_layer(units, d_model, num_heads, dropout, name="decoder_layer"):
       outputs=outputs,
       name=name)
 
-sample_decoder_layer = decoder_layer(
-    units=512,
-    d_model=128,
-    num_heads=4,
-    dropout=0.3,
-    name="sample_decoder_layer")
-
 """### Decoder
 
 The Decoder consists of:
@@ -526,15 +503,6 @@ def decoder(vocab_size,
       inputs=[inputs, enc_outputs, look_ahead_mask, padding_mask],
       outputs=outputs,
       name=name)
-
-sample_decoder = decoder(
-    vocab_size=8192,
-    num_layers=2,
-    units=512,
-    d_model=128,
-    num_heads=4,
-    dropout=0.3,
-    name="sample_decoder")
 
 """### Transformer
 
@@ -586,21 +554,14 @@ def transformer(vocab_size,
 
   return tf.keras.Model(inputs=[inputs, dec_inputs], outputs=outputs, name=name)
 
-sample_transformer = transformer(
-    vocab_size=8192,
-    num_layers=4,
-    units=512,
-    d_model=128,
-    num_heads=4,
-    dropout=0.3,
-    name="sample_transformer")
-
 """## Train model
 
 ### Initialize model
 
 To keep this example small and relatively fast, the values for *num_layers, d_model, and units* have been reduced. See the [paper](https://arxiv.org/abs/1706.03762) for all the other versions of the transformer.
 """
+
+print("Initializing and compiling model.")
 
 tf.keras.backend.clear_session()
 
@@ -658,8 +619,6 @@ class CustomSchedule(tf.keras.optimizers.schedules.LearningRateSchedule):
 
     return tf.math.rsqrt(self.d_model) * tf.math.minimum(arg1, arg2)
 
-sample_learning_rate = CustomSchedule(d_model=128)
-
 """### Compile Model"""
 
 learning_rate = CustomSchedule(D_MODEL)
@@ -674,13 +633,14 @@ def accuracy(y_true, y_pred):
 
 model.compile(optimizer=optimizer, loss=loss_function, metrics=[accuracy])
 
+print("Model compiled. Starting training.")
+
 """### Fit model
 
 Train our transformer by simply calling `model.fit()`
 """
 
-#EPOCHS = 20
-EPOCHS = 0
+EPOCHS = 20
 
 model.fit(dataset, epochs=EPOCHS)
 
@@ -735,7 +695,7 @@ def predict(sentence):
 
 """Run model!"""
 
-print("Model compiled and trained. Ready to run! Zh1Alex9dU")
+print("Model trained. Ready to run! Verfication code: Zh1Alex9dU")
 
 def main():
   inp = input()

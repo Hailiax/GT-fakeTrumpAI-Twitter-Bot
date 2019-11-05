@@ -3,23 +3,28 @@ let T = new Twit(require('./config.js'));
 let Scraper = require('./scraper.js');
 let Spawn = require('child_process').spawn;
 
-let model, sinceId = [0];
+let model, sinceId = ['12345'];
 // TODO use an actual queue
-let predictionPromiseQueue = [];
+let predictionPromiseResolveQueue = [];
 
 async function init( callback ) {
-	model = Spawn('python', ['model.py']);
-	compiled = false;
+	console.log("Starting model.py");
+	let env = Object.create(process.env);
+	env.PYTHONUNBUFFERED = '1';
+	model = Spawn('python', ['model.py'], {stdio: 'pipe', env: env});
+	ready = false;
 	model.stdout.on('data', data => {
-		console.log(data);
-		if (compiled){
-			let promise = predictionPromiseQueue.shift();
-			promise.resolve(data);
-		} else {
-			if (data === "Model compiled and trained. Ready to run! Zh1Alex9dU") {
-				compiled = true;
+		dataStr = data.toString().trim();
+		console.log("From model.py: " + dataStr);
+		if (!ready){
+			if (dataStr === "Model trained. Ready to run! Verfication code: Zh1Alex9dU") {
+				ready = true;
 				callback();
 			}
+		} else {
+			// Assuming all stdout from model now will be a predicted response to an input
+			let resolve = predictionPromiseResolveQueue.shift();
+			resolve(dataStr);
 		}
 	});
 }
@@ -32,12 +37,14 @@ async function run( callback ) {
 }
 
 async function hourlyResponse() {
+	console.log("Hourly response: responding to good tweet of this hour.");
 	let data = await Scraper.getPopularTweet(T);
 	let response = await predictResponse(data.text);
 	Scraper.postResponse(T, data.target, response);
 }
 
 async function mentionResponse() {
+	console.log("Every 15 seconds response: checking for any @mentions to respond to since id: " + sinceId[0]);
 	let data = await Scraper.getNewMentions(T, sinceId);
 	for (let datum of data) {
 		let response = await predictResponse(datum.text);
@@ -46,9 +53,12 @@ async function mentionResponse() {
 }
 
 async function predictResponse(input) {
-	let promise = new Promise();
+	console.log("New prediction requested. To model.py: " + input);
+	let promise = new Promise(resolve => {
+		predictionPromiseResolveQueue.push(resolve);
+	});
 	model.stdin.write(input);
-	predictionPromiseQueue.push(promise);
+	model.stdin.write('\n');
 	return promise;
 }
 
