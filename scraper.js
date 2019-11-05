@@ -54,6 +54,9 @@ function _getPopularTweets(T, query, count) {
  */
 async function _getPopularTweetHelper(T, trend) {
 	let popularTweets = await _getPopularTweets(T, trend, 1);
+	if (popularTweets.length === 0) {
+		return null;
+	}
 	if (!popularTweets[0].text.includes("https://t.co/")) {
 		return popularTweets[0];
 	} else {
@@ -94,7 +97,7 @@ async function getPopularTweet(T) {
 function _getNewMentionsHelper(T, sinceId) {
 	return new Promise(resolve => {
 		let param = {
-			since_id: parseInt(sinceId)
+			since_id: sinceId
 		}
 		T.get('statuses/mentions_timeline', param, function (error, data) {
 			if (!error) {
@@ -124,7 +127,7 @@ async function getNewMentions(T, sinceId) {
 		if (tweet.in_reply_to_status_id_str !== null) {
 			let parent = await getTweet(T, tweet.in_reply_to_status_id_str);
 			returnArr.push({ target: tweet, text: parent.text });
-			sinceId[0] = Math.max(parseInt(tweet.id_str), parseInt(sinceId[0])).toString();
+			sinceId[0] = tweet.id_str;
 		} else {
 			postResponse(T, tweet, "I cannot respond to this. Please reply to any tweet mentioning me, and I will reply with my response to the tweet you replied to.");
 		}
