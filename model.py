@@ -17,6 +17,9 @@ We will use the conversations in movies and TV shows provided by [Cornell Movie-
 `movie_conversations.txt` contains list of the conversation IDs and `movie_lines.text` contains the text of assoicated with each conversation ID. For further  information regarding the dataset, please check the README file in the zip file.
 """
 
+data_name = "movie"
+new_training = True;
+
 path_to_movie_lines = 'model_training/movie_lines.txt'
 path_to_movie_conversations = 'model_training/movie_conversations.txt'
 
@@ -641,8 +644,18 @@ Train our transformer by simply calling `model.fit()`
 """
 
 EPOCHS = 20
+checkpoint_path = "training/"+data_name+"_cp.ckpt"
+checkpoint_dir = os.path.dirname(checkpoint_path)
 
-model.fit(dataset, epochs=EPOCHS)
+# Create a callback that saves the model's weights
+cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path,
+                                                 save_weights_only=True,
+                                                 verbose=1)
+
+if new_training:
+  model.fit(dataset, epochs=EPOCHS, callbacks=[cp_callback])
+else:
+  model.load_weights(checkpoint_path)
 
 """## Evaluate and predict
 
