@@ -140,11 +140,11 @@ async function getNewMentions(T, sinceId, fs) {
 		});
 		if ((tweet.in_reply_to_status_id_str !== null && tweet.in_reply_to_user_id_str !== '1186681648122757121')) {
 			let parent = await getTweet(T, tweet.in_reply_to_status_id_str);
-			if (parent.text.includes("https://t.co/")) {
+			/*if (parent.text.includes("https://t.co/")) {
 				postResponse(T, tweet, "I cannot respond to this. Please reply to any text only tweet mentioning me, and I will reply with my response to the tweet you replied to.");
-			} else {
+			} else {*/
 				returnArr.push({ target: tweet, text: parent.text });
-			}
+			//}
 		} else
 			postResponse(T, tweet, "I cannot respond to this. Please reply to any text only tweet mentioning me, and I will reply with my response to the tweet you replied to.");
 	}
