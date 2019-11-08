@@ -97,7 +97,7 @@ async function getPopularTweet(T) {
 function _getNewMentionsHelper(T, sinceId) {
 	return new Promise(resolve => {
 		let param = {
-			since_id: sinceId
+			since_id: sinceId[0]
 		}
 		T.get('statuses/mentions_timeline', param, function (error, data) {
 			if (!error) {
@@ -124,11 +124,14 @@ async function getNewMentions(T, sinceId) {
 	let tweetList = await _getNewMentionsHelper(T, sinceId[0]);
 	let returnArr = [];
 	for (let tweet of tweetList) {
-		if ((tweet.in_reply_to_status_id_str !== null && tweet.in_reply_to_user_id_str !== '1186681648122757121')
-			|| (tweet.in_reply_to_status_id_str !== null && tweet.in_reply_to_status_id_str.includes("https://t.co/"))) {
+		if ((tweet.in_reply_to_status_id_str !== null && tweet.in_reply_to_user_id_str !== '1186681648122757121')) {
 			let parent = await getTweet(T, tweet.in_reply_to_status_id_str);
-			returnArr.push({ target: tweet, text: parent.text });
-			sinceId[0] = tweet.id_str;
+			if (parent.text.includes("https://t.co/")) {
+				postResponse(T, tweet, "I cannot respond to this. Please reply to any text only tweet mentioning me, and I will reply with my response to the tweet you replied to.");
+			} else {
+				returnArr.push({ target: tweet, text: parent.text });
+				sinceId[0] = tweet.id_str;
+			}
 		} else
 			postResponse(T, tweet, "I cannot respond to this. Please reply to any text only tweet mentioning me, and I will reply with my response to the tweet you replied to.");
 	}
