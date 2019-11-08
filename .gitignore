@@ -6,8 +6,10 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 
-# python env
+# large environment folders
 env
+node_modules
+training
 
 # macos
 .DS_Store

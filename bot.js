@@ -57,7 +57,7 @@ async function predictResponse(input) {
 	let promise = new Promise(resolve => {
 		predictionPromiseResolveQueue.push(resolve);
 	});
-	model.stdin.write(input);
+	model.stdin.write(input.replace(/(\r\n|\n|\r)/gm, ""));
 	model.stdin.write('\n');
 	return promise;
 }
