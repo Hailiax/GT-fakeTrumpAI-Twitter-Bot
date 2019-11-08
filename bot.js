@@ -2,21 +2,23 @@ let Twit = require('twit');
 let T = new Twit(require('./config.js'));
 let Scraper = require('./scraper.js');
 let Spawn = require('child_process').spawn;
+const fs = require('fs');
 
-let model, sinceId = ['12345'];
+let model, sinceId = [fs.readFileSync('since_id.txt', 'utf8')];
+
 // TODO use an actual queue
 let predictionPromiseResolveQueue = [];
 
-async function init( callback ) {
+async function init(callback) {
 	console.log("Starting model.py");
 	let env = Object.create(process.env);
 	env.PYTHONUNBUFFERED = '1';
-	model = Spawn('python', ['model.py'], {stdio: 'pipe', env: env});
+	model = Spawn('python', ['model.py'], { stdio: 'pipe', env: env });
 	ready = false;
 	model.stdout.on('data', data => {
 		dataStr = data.toString().trim();
 		console.log("From model.py: " + dataStr);
-		if (!ready){
+		if (!ready) {
 			if (dataStr === "Model trained. Ready to run! Verfication code: Zh1Alex9dU") {
 				ready = true;
 				callback();
@@ -29,7 +31,7 @@ async function init( callback ) {
 	});
 }
 
-async function run( callback ) {
+async function run(callback) {
 	hourlyResponse();
 	mentionResponse();
 	setInterval(hourlyResponse, 1000 * 60 * 60);
@@ -45,7 +47,7 @@ async function hourlyResponse() {
 
 async function mentionResponse() {
 	console.log("Every 15 seconds response: checking for any @mentions to respond to since id: " + sinceId[0]);
-	let data = await Scraper.getNewMentions(T, sinceId);
+	let data = await Scraper.getNewMentions(T, sinceId, fs);
 	for (let datum of data) {
 		let response = await predictResponse(datum.text);
 		Scraper.postResponse(T, datum.target, response);
@@ -62,4 +64,4 @@ async function predictResponse(input) {
 	return promise;
 }
 
-init( run );
+init(run);

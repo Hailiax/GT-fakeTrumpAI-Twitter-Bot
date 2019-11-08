@@ -97,7 +97,7 @@ async function getPopularTweet(T) {
 function _getNewMentionsHelper(T, sinceId) {
 	return new Promise(resolve => {
 		let param = {
-			since_id: sinceId[0]
+			since_id: sinceId
 		}
 		T.get('statuses/mentions_timeline', param, function (error, data) {
 			if (!error) {
@@ -118,19 +118,26 @@ function _getNewMentionsHelper(T, sinceId) {
  * @param sinceId the since id
  * @return an array of {target: 'the mentioner's tweet', text: 'the text of the parent to respond to'}
  */
-async function getNewMentions(T, sinceId) {
+async function getNewMentions(T, sinceId, fs) {
 	// TODO update sinceId
 	console.log("Attempting to get list of recent proper mentions.");
 	let tweetList = await _getNewMentionsHelper(T, sinceId[0]);
 	let returnArr = [];
 	for (let tweet of tweetList) {
+		if (parseInt(sinceId[0]) < parseInt(tweet.id_str)) {
+			sinceId[0] = tweet.id_str;
+		}
+		await fs.writeFile('since_id.txt', sinceId[0], function (error) {
+			if (error) {
+				console.log(error);
+			}
+		});
 		if ((tweet.in_reply_to_status_id_str !== null && tweet.in_reply_to_user_id_str !== '1186681648122757121')) {
 			let parent = await getTweet(T, tweet.in_reply_to_status_id_str);
 			if (parent.text.includes("https://t.co/")) {
 				postResponse(T, tweet, "I cannot respond to this. Please reply to any text only tweet mentioning me, and I will reply with my response to the tweet you replied to.");
 			} else {
 				returnArr.push({ target: tweet, text: parent.text });
-				sinceId[0] = tweet.id_str;
 			}
 		} else
 			postResponse(T, tweet, "I cannot respond to this. Please reply to any text only tweet mentioning me, and I will reply with my response to the tweet you replied to.");
