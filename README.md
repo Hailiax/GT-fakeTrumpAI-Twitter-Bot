@@ -8,6 +8,7 @@ The bot also responds to user mentions provided that the mention has a parent tw
 
 ## TODO
 
-Prevent bot from responding to itself and thus creating an infinite loop  
-Handle case where you exceed 50 of the trends and hit the twitter rate limit  
-* Increment the count parameter in _getPopularTweets by 1 and then get the next tweet
+* Prevent bot from responding to itself and thus creating an infinite loop  
+* Handle case where you exceed 50 of the trends and hit the twitter rate limit  
+  * Increment the count parameter in _getPopularTweets by 1 and then get the next tweet  
+* Update JSDocs
