@@ -18,9 +18,9 @@ We will use the conversations in movies and TV shows provided by [Cornell Movie-
 """
 
 data_name = "trump"
-new_training = False
+new_training = True
 VALIDATION_SIZE = 20
-EPOCHS = 800
+EPOCHS = 80
 MAX_LENGTH = 100
 
 path_to_training_data = 'model_training/trump_response_pairs.txt'
