@@ -1,9 +1,8 @@
-# Fake Trump AI Bot
+# Fake Trump AI Twitter Bot
 
-https://twitter.com/fakeTrumpAI
+Check it out on [Twitter](https://twitter.com/fakeTrumpAI/with_replies)! The bot is supposed to reply to a trending tweet roughly every hour so if you see a recent-ish tweet, the bot is still online and running! Try it out by replying to any tweet with @fakeTrumpAI and the bot should reply to you with a response to the tweet you replied to.
 
-This bot scrapes twitter for popular trends and gets a tweet for each trend and then replies with a self generated reply. 
-The bot also responds to user mentions provided that the mention has a parent tweet that does not contain any media.
+This bot uses a model based on this [article](https://medium.com/tensorflow/a-transformer-chatbot-tutorial-with-tensorflow-2-0-88bf59e66fe2).
 
 ## Run This On Your Own Computer!  
 Run this bot: `node bot.js`  
