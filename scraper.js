@@ -52,12 +52,12 @@ function _getPopularTweets(T, query, count) {
  * @param trendsArr an array with the current trending topics
  * @promises the pre-processed text from a recent tweet
  */
-async function _getPopularTweetHelper(T, trend) {
+async function _getPopularTweetHelper(T, trend, sinceId) {
 	let popularTweets = await _getPopularTweets(T, trend, 1);
 	if (popularTweets.length === 0) {
 		return null;
 	}
-	if (!popularTweets[0].text.includes("https://t.co/")) {
+	if (!popularTweets[0].text.includes("https://t.co/") && parseInt(popularTweets[0].id_str) > parseInt(sinceId.most_recent_popular_tweet_id)) {
 		return popularTweets[0];
 	} else {
 		return null;
@@ -70,19 +70,25 @@ async function _getPopularTweetHelper(T, trend) {
  * @param T the twitter object
  * @return {target: 'the id of the tweet to post a reply to', text: 'the text to respond to'}
  */
-async function getPopularTweet(T) {
+async function getPopularTweet(T, sinceId, fs) {
 	console.log("Attempting to get one popular tweet");
 	let trendsArr = await _getTrends(T);
 	let count = 0;
-	let tweet = await _getPopularTweetHelper(T, trendsArr[count]);
+	let tweet = await _getPopularTweetHelper(T, trendsArr[count], sinceId);
 	while (tweet === null) {
-		console.log("Tweet contained an image. Finding a new tweet.");
+		console.log("Tweet contained an image or tweet is too old. Finding a new tweet.");
 		if (count > trendsArr.length - 1) {
 			count = 0;
 			trendsArr = await _getTrends(T);
 		}
-		tweet = await _getPopularTweetHelper(T, trendsArr[++count]);
+		tweet = await _getPopularTweetHelper(T, trendsArr[++count], sinceId);
 	}
+	sinceId.most_recent_popular_tweet_id = tweet.id_str;
+	await fs.writeFile('since_id.json', JSON.stringify(sinceId), function (error) {
+		if (error) {
+			console.log(error);
+		}
+	});
 	console.log("Successful get tweet");
 	return { target: tweet, text: tweet.text };
 }
@@ -121,13 +127,13 @@ function _getNewMentionsHelper(T, sinceId) {
 async function getNewMentions(T, sinceId, fs) {
 	// TODO update sinceId
 	console.log("Attempting to get list of recent proper mentions.");
-	let tweetList = await _getNewMentionsHelper(T, sinceId[0]);
+	let tweetList = await _getNewMentionsHelper(T, sinceId.most_recent_mention_id);
 	let returnArr = [];
 	for (let tweet of tweetList) {
-		if (parseInt(sinceId[0]) < parseInt(tweet.id_str)) {
-			sinceId[0] = tweet.id_str;
+		if (parseInt(sinceId.most_recent_mention_id) < parseInt(tweet.id_str)) {
+			sinceId.most_recent_mention_id = tweet.id_str;
 		}
-		await fs.writeFile('since_id.txt', sinceId[0], function (error) {
+		await fs.writeFile('since_id.json', JSON.stringify(sinceId), function (error) {
 			if (error) {
 				console.log(error);
 			}

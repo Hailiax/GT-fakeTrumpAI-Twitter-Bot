@@ -4,7 +4,7 @@ let Scraper = require('./scraper.js');
 let Spawn = require('child_process').spawn;
 const fs = require('fs');
 
-let model, sinceId = [fs.readFileSync('since_id.txt', 'utf8')];
+let model, sinceId = JSON.parse(fs.readFileSync('since_id.json', 'utf8'));
 
 // TODO use an actual queue
 let predictionPromiseResolveQueue = [];
@@ -40,13 +40,13 @@ async function run(callback) {
 
 async function hourlyResponse() {
 	console.log("Hourly response: responding to good tweet of this hour.");
-	let data = await Scraper.getPopularTweet(T);
+	let data = await Scraper.getPopularTweet(T, sinceId, fs);
 	let response = await predictResponse(data.text);
 	Scraper.postResponse(T, data.target, response);
 }
 
 async function mentionResponse() {
-	console.log("Every 15 seconds response: checking for any @mentions to respond to since id: " + sinceId[0]);
+	console.log("Every 15 seconds response: checking for any @mentions to respond to since id: " + sinceId.most_recent_mention_id);
 	let data = await Scraper.getNewMentions(T, sinceId, fs);
 	for (let datum of data) {
 		let response = await predictResponse(datum.text);
