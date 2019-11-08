@@ -50,6 +50,7 @@ function _getPopularTweets(T, query, count) {
  * 
  * @param T the twitter object
  * @param trendsArr an array with the current trending topics
+ * @param sinceId the id of the most recent popular tweet that the bot found
  * @promises the pre-processed text from a recent tweet
  */
 async function _getPopularTweetHelper(T, trend, sinceId) {
@@ -68,6 +69,8 @@ async function _getPopularTweetHelper(T, trend, sinceId) {
  * Gets a single popular tweet
  *
  * @param T the twitter object
+ * @param sinceId the id of the most recent popular tweet that the bot found
+ * @param fs the node file system library
  * @return {target: 'the id of the tweet to post a reply to', text: 'the text to respond to'}
  */
 async function getPopularTweet(T, sinceId, fs) {
@@ -96,8 +99,8 @@ async function getPopularTweet(T, sinceId, fs) {
 /**
  * Promises an array of tweet ids
  * 
- * @param {*} T the twitter object
- * @param {*} sinceId since id
+ * @param  the twitter object
+ * @param sinceId id of the most recent mention the bot replied to
  * @return array of recent mentions
  */
 function _getNewMentionsHelper(T, sinceId) {
