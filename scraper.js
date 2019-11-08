@@ -124,7 +124,7 @@ async function getNewMentions(T, sinceId) {
 	let tweetList = await _getNewMentionsHelper(T, sinceId[0]);
 	let returnArr = [];
 	for (let tweet of tweetList) {
-		if (tweet.in_reply_to_status_id_str !== null) {
+		if (tweet.in_reply_to_status_id_str !== null && tweet.in_reply_to_user_id_str !== '1186681648122757121') {
 			let parent = await getTweet(T, tweet.in_reply_to_status_id_str);
 			returnArr.push({ target: tweet, text: parent.text });
 			sinceId[0] = tweet.id_str;
